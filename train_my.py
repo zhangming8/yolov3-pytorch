@@ -135,6 +135,8 @@ class VOCTrainingEngine(engine.Engine):
         model_name = hyper_params.model_name
         net = models.__dict__[model_name](hyper_params.classes, hyper_params.weights, train_flag=1,
                                           clear=hyper_params.clear)
+        # net = models.TinyYolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
+        # net = models.Yolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
         log.info('Net structure\n\n%s\n' % net)
         if self.cuda:
             net.cuda()

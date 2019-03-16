@@ -199,8 +199,11 @@ def voc_test(hyper_params):
             cv2.putText(img, class_label + ":"+str(conf)[:5], (max(0, x1), max(15, y1)), cv2.FONT_ITALIC, 0.6, (0, 255, 0), 2)
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0))
             cv2.imwrite(os.path.join(save_dir, os.path.basename(img_path)), img)
-        print("detect: {}".format(result))
-        print("save: {} -> {}".format(img_path, os.path.join(save_dir, os.path.basename(img_path))))
+        if len(result) != 0:
+            print("detect: {}".format(result))
+            print("save: {} -> {}".format(img_path, os.path.join(save_dir, os.path.basename(img_path))))
+        else:
+            print("detect nothing")
 
 
 if __name__ == '__main__':

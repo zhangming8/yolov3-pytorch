@@ -1,2 +1,4 @@
+.idea
+outputs
 __pycache__
 *.pyc
