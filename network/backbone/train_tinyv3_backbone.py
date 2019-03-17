@@ -121,7 +121,7 @@ def validate(val_loader, model, criterion):
     return top1.avg
 
 
-def train(train_loader, model, criterion, optimizer, epoch, num_epochs):
+def train(train_loader, model, criterion, optimizer, epoch, num_epochs, scheduler):
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
@@ -152,11 +152,11 @@ def train(train_loader, model, criterion, optimizer, epoch, num_epochs):
         optimizer.step()
 
         if i % 50 == 0:
-            print('Epoch: [{0}/{1}][{2}/{3}], '
+            print('Epoch: [{0}/{1}][{2}/{3}], lr: {4}, '
                   'Loss(avg): {loss.val:.4f}({loss.avg:.4f}), '
                   'Top1 acc(avg): {top1.val:.3f}({top1.avg:.3f}), '
                   'Top5 acc(avg): {top5.val:.3f}({top5.avg:.3f})'.format(
-                   epoch, num_epochs, i, len(train_loader),
+                   epoch, num_epochs, i, len(train_loader), scheduler.get_lr()[0],
                    loss=losses, top1=top1, top5=top5))
 
 
@@ -186,7 +186,7 @@ def main():
     num_epochs = 25
     for epoch in range(num_epochs):
         scheduler.step()
-        train(train_dataloaders, model, criterion, optimizer, epoch, num_epochs)
+        train(train_dataloaders, model, criterion, optimizer, epoch, num_epochs, scheduler)
         acc = validate(val_dataloaders, model, criterion)
         torch.save(model.state_dict(), ('weights/Epoch{}_acc{:.2f}.pt'.format(epoch, acc)))
 
