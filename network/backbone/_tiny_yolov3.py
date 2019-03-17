@@ -81,7 +81,7 @@ class TinyYolov3(nn.Module):
             block2 = self.layers[1](block1)
             block3 = self.layers[2](block2)
             block4 = self.layers[3](block3)
-            flat = block4.view(block4.szie[0], -1)
+            flat = block4.view(block4.size(0), -1)
             output = self.layers[4](flat)
             return output
         else:
