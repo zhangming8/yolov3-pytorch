@@ -136,7 +136,7 @@ def train(train_loader, model, criterion, optimizer, epoch, num_epochs):
 
         # compute output
         # output = model(inputs)
-        output = model(inputs,  train_backbone=True)
+        output = model(inputs)
         loss = criterion(output, labels)
 
         # measure accuracy and record loss
@@ -170,7 +170,7 @@ def main():
     # num_ftrs = model.fc.in_features
     # model.fc = nn.Linear(num_ftrs, len(class_names))
 
-    model = TinyYolov3()
+    model = TinyYolov3(train_backbone=True)
     model = model.to(device)
     print(model)
 

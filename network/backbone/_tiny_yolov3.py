@@ -25,10 +25,10 @@ __all__ = ['TinyYolov3']
 class TinyYolov3(nn.Module):
     """
     """
-    def __init__(self):
+    def __init__(self, train_backbone=False):
         """ Network initialisation """
         super().__init__()
-
+        self.train_backbone = train_backbone
         # Network yolov3-tiny 0-13 layer
         layer_list = [
             # Sequence 0 : input = image tensor
@@ -64,18 +64,26 @@ class TinyYolov3(nn.Module):
             ]),
         ]
 
-        self.layers = nn.ModuleList([nn.Sequential(layer_dict) for layer_dict in layer_list])
+        classify_layer_list = [
+            OrderedDict([
+                ("14_linear", nn.Linear(12544, 99)),
+                ("15_softmax", nn.Softmax(1))
+        ])
+        ]
+        if self.train_backbone:
+            self.layers = nn.ModuleList([nn.Sequential(layer_dict) for layer_dict in layer_list+classify_layer_list])
+        else:
+            self.layers = nn.ModuleList([nn.Sequential(layer_dict) for layer_dict in layer_list])
 
-    def forward(self, x, train_backbone=False):
-        if train_backbone:
+    def forward(self, x):
+        if self.train_backbone:
             block1 = self.layers[0](x)
             block2 = self.layers[1](block1)
             block3 = self.layers[2](block2)
             block4 = self.layers[3](block3)
             _, shape_c, shape_h, shape_w = np.shape(block4)
             flat = block4.view(-1, shape_c * shape_h * shape_w)
-            final_out = nn.Linear(shape_c * shape_h * shape_w, 99)(flat)
-            softmax = nn.Softmax(1)(final_out)
+            softmax = self.layers[4](flat)
             return softmax
         else:
             stem = self.layers[0](x)
@@ -88,10 +96,10 @@ class TinyYolov3(nn.Module):
 
 if __name__ == "__main__":
     x = torch.randn([1, 3, 224, 224])
-    tiny_yolov3 = TinyYolov3()
+    tiny_yolov3 = TinyYolov3(train_backbone=True)
     # torch.save(tiny_yolov3.state_dict(), "aaa.pt")
     # tiny_yolov3.load_state_dict(torch.load('aaa.pt'))
     print(tiny_yolov3)
-    out = tiny_yolov3(x, train_backbone=True)
+    out = tiny_yolov3(x)
 
     print(np.shape(out))
