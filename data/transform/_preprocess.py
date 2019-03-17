@@ -8,19 +8,20 @@
 # modified by mileistone
 
 import random
+import sys
 import collections
 import logging as log
 import torch
 import numpy as np
+import cv2
 from PIL import Image, ImageOps
-import brambox.boxes as bbb
-from .util import BaseTransform, BaseMultiTransform
 
+import brambox.boxes as bbb
 try:
-    import cv2
-except ImportError:
-    log.warn('OpenCV is not installed and cannot be used')
-    cv2 = None
+    from .util import BaseTransform, BaseMultiTransform
+except:
+    sys.path.append("../../")
+    from data.transform.util import BaseTransform, BaseMultiTransform
 
 __all__ = ['Letterbox', 'RandomCrop', 'RandomCropLetterbox', 'RandomFlip', 'HSVShift', 'BramboxToTensor']
 
@@ -545,3 +546,15 @@ class BramboxToTensor(BaseTransform):
         w = anno.width / net_w
         h = anno.height / net_h
         return [cls, cx, cy, w, h]
+
+
+if __name__ == "__main__":
+    prob = 1.0
+    filp = RandomFlip(prob)
+    "/Users/ming/Desktop/yolov3/yolov3-tiny-pytorch/test_img/000005.jpg"
+    img = cv2.imread("../../test_img/000005.jpg")
+    img_filp = filp(img)
+    cv2.imshow("img_org", img)
+    cv2.imshow("img_filp", img_filp)
+    cv2.waitKey(0)
+

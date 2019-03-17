@@ -5,14 +5,21 @@
 
 import numpy as np
 import os
+import sys
 import copy
 import logging as log
 from PIL import Image
+from PIL import ImageDraw
 import cv2
 import random
 
 import brambox.boxes as bbb
-from ._dataloading import Dataset
+try:
+    from ._dataloading import Dataset
+except:
+    sys.path.append("../../")
+    from data import Dataset
+    import data as mydata
 
 __all__ = ['BramboxDataset']
 
@@ -89,3 +96,37 @@ class BramboxDataset(Dataset):
         if self.anno_tf is not None:
             anno = self.anno_tf(anno)
         return img, anno
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    def identify(img_id):
+        # return f'{root}/VOCdevkit/{img_id}.jpg'
+        return f'{img_id}'
+    class unreal_dataset():
+        def __init__(self):
+            self.input_dim = [416, 416]
+    labels = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+
+    rf = mydata.transform.RandomFlip(0.5)  #水平翻转
+    lb = mydata.transform.Letterbox(dataset=unreal_dataset())  # 长边变为416，短边等比例缩放使用127填充
+    rc = mydata.transform.RandomCrop(0.3)  # 在原图上随机裁剪，裁剪0.3，保留原图短0.7
+    rc2 = mydata.transform.RandomCropLetterbox(dataset=unreal_dataset(), jitter=0.3)  # 等比例缩放后再随机裁剪
+    hsv = mydata.transform.HSVShift(0.1, 1.5, 1.5)  # 随机色度饱和度等
+
+    img_tf = mydata.transform.Compose([rf, hsv, rc2])
+    anno_tf = mydata.transform.Compose([rf, rc2])
+
+    data = BramboxDataset('anno_pickle', '/Users/ming/Desktop/tmp/VOCdevkit/onedet_cache/train.pkl', [416, 416], labels, identify, img_tf, anno_tf)
+    for img, label in data:
+        imgdraw = ImageDraw.Draw(img)
+        print("----------------")
+        for l in label:
+            cls, x1, y1, w, h = l.class_label, l.x_top_left, l.y_top_left, l.width, l.height
+            print("label: {}, x: {}, y: {}, w: {}, h: {}".format(cls, x1, y1, w, h))
+            x2, y2 = x1+w, y1+h
+            imgdraw.rectangle((x1, y1, x2, y2), outline='red')
+        plt.imshow(img)
+        plt.show()
+
+
