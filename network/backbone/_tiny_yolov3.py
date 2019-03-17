@@ -67,7 +67,7 @@ class TinyYolov3(nn.Module):
         classify_layer_list = [
             OrderedDict([
                 ("14_linear", nn.Linear(12544, 99)),
-                ("15_softmax", nn.Softmax(1))
+                # ("15_softmax", nn.Softmax(1))
         ])
         ]
         if self.train_backbone:
@@ -81,10 +81,9 @@ class TinyYolov3(nn.Module):
             block2 = self.layers[1](block1)
             block3 = self.layers[2](block2)
             block4 = self.layers[3](block3)
-            _, shape_c, shape_h, shape_w = np.shape(block4)
-            flat = block4.view(-1, shape_c * shape_h * shape_w)
-            softmax = self.layers[4](flat)
-            return softmax
+            flat = block4.view(block4.szie[0], -1)
+            output = self.layers[4](flat)
+            return output
         else:
             stem = self.layers[0](x)
             stage4 = self.layers[1](stem)
