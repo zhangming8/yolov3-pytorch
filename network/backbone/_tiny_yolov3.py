@@ -74,7 +74,7 @@ class TinyYolov3(nn.Module):
             block4 = self.layers[3](block3)
             _, shape_c, shape_h, shape_w = np.shape(block4)
             flat = block4.view(-1, shape_c * shape_h * shape_w)
-            final_out = nn.Linear(shape_c * shape_h * shape_w, 1000)(flat)
+            final_out = nn.Linear(shape_c * shape_h * shape_w, 99)(flat)
             softmax = nn.Softmax(1)(final_out)
             return softmax
         else:

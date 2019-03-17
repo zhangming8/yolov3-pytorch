@@ -133,10 +133,15 @@ class VOCTrainingEngine(engine.Engine):
 
         log.debug('Creating network')
         model_name = hyper_params.model_name
-        net = models.__dict__[model_name](hyper_params.classes, hyper_params.weights, train_flag=1,
-                                          clear=hyper_params.clear)
-        # net = models.TinyYolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
-        # net = models.Yolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
+        # net = models.__dict__[model_name](hyper_params.classes, hyper_params.weights, train_flag=1,
+        #                                   clear=hyper_params.clear)
+        if model_name == "TinyYolov3":
+            net = models.TinyYolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
+        elif model_name == "Yolov3":
+            net = models.Yolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
+        else:
+            print("model name should be 'TinyYolov3' or 'Yolov3', your input {}".format(model_name))
+            exit()
         log.info('Net structure\n\n%s\n' % net)
         if self.cuda:
             net.cuda()
@@ -265,7 +270,8 @@ class VOCTrainingEngine(engine.Engine):
 if __name__ == '__main__':
 
     train_flag = 1  # 1 for train, 2 for test, 3 for test speed
-    model_name = "TinyYolov3"  # Yolov3
+    model_name = "TinyYolov3"
+    # model_name = "Yolov3"
     config = initEnv(train_flag=train_flag, model_name=model_name)
 
     log.info('Config\n\n%s\n' % pformat(config))

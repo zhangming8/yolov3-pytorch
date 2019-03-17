@@ -16,7 +16,7 @@ from  _tiny_yolov3 import TinyYolov3
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 data_dir = '/media/lishundong/DATA2/docker/data/sku_for_classify2'
-train_folder = os.path.join(data_dir, "sku_val")
+train_folder = os.path.join(data_dir, "sku_train")
 val_folder = os.path.join(data_dir, "sku_val")
 
 
@@ -45,6 +45,7 @@ train_dataset_sizes = len(train_dataset)
 val_dataset_sizes = len(val_dataset)
 class_names = train_dataset.classes
 print(train_dataset.class_to_idx)
+print("number classes:", len(class_names))
 #print(train_dataset.imgs)
 
 
