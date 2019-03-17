@@ -38,12 +38,13 @@ val_transforms = transforms.Compose([
 train_dataset = datasets.ImageFolder(train_folder, train_transforms)
 val_dataset = datasets.ImageFolder(val_folder, val_transforms)
 
-train_dataloaders = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=4)
-val_dataloaders = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4)
+train_dataloaders = torch.utils.data.DataLoader(train_dataset, batch_size=256, shuffle=True, num_workers=4)
+val_dataloaders = torch.utils.data.DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=4)
 
 train_dataset_sizes = len(train_dataset)
 val_dataset_sizes = len(val_dataset)
 class_names = train_dataset.classes
+print("train {}, val {}".format(train_dataset_sizes, val_dataset_sizes))
 print(train_dataset.class_to_idx)
 print("number classes:", len(class_names))
 #print(train_dataset.imgs)
@@ -173,9 +174,10 @@ def main():
     model = TinyYolov3(train_backbone=True)
     model = model.to(device)
     print(model)
+    print("use device:", device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
     if freeze_conv_layer:
         optimizer = optim.SGD(model.fc.parameters(), lr=0.001, momentum=0.9)
 

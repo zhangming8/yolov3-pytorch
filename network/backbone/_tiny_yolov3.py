@@ -95,7 +95,7 @@ class TinyYolov3(nn.Module):
 
 
 if __name__ == "__main__":
-    x = torch.randn([1, 3, 224, 224])
+    x = torch.randn([2, 3, 224, 224])
     tiny_yolov3 = TinyYolov3(train_backbone=True)
     # torch.save(tiny_yolov3.state_dict(), "aaa.pt")
     # tiny_yolov3.load_state_dict(torch.load('aaa.pt'))
