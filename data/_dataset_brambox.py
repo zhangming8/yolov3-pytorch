@@ -108,16 +108,17 @@ if __name__ == "__main__":
             self.input_dim = [416, 416]
     labels = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 
-    rf = mydata.transform.RandomFlip(0.5)  #水平翻转
+    rf = mydata.transform.RandomFlip(0.5)  # 水平翻转
     lb = mydata.transform.Letterbox(dataset=unreal_dataset())  # 长边变为416，短边等比例缩放使用127填充
-    rc = mydata.transform.RandomCrop(0.3)  # 在原图上随机裁剪，裁剪0.3，保留原图短0.7
+    rc = mydata.transform.RandomCrop(0.3)  # 在原图上随机裁剪，裁剪0.3，保留原图0.7
     rc2 = mydata.transform.RandomCropLetterbox(dataset=unreal_dataset(), jitter=0.3)  # 等比例缩放后再随机裁剪
     hsv = mydata.transform.HSVShift(0.1, 1.5, 1.5)  # 随机色度饱和度等
+    rot = mydata.transform.RandomRotate(jitter_min=-20, jitter_max=20)
 
-    img_tf = mydata.transform.Compose([rf, hsv, rc2])
-    anno_tf = mydata.transform.Compose([rf, rc2])
+    img_tf = mydata.transform.Compose([rf, hsv, rot, rc2])
+    anno_tf = mydata.transform.Compose([rf, rot, rc2])
 
-    data = BramboxDataset('anno_pickle', '/Users/ming/Desktop/tmp/VOCdevkit/onedet_cache/train.pkl', [416, 416], labels, identify, img_tf, anno_tf)
+    data = BramboxDataset('anno_pickle', '/Users/ming/Desktop/tmp/VOCdevkit/onedet_cache/test.pkl', [416, 416], labels, identify, img_tf, anno_tf)
     for img, label in data:
         imgdraw = ImageDraw.Draw(img)
         print("----------------")

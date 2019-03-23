@@ -110,12 +110,13 @@ class YoloLoss(nn.modules.loss._Loss):
         coord[:, :, 2:4] = output[:, :, 2:4]            # tw,th
         conf = output[:, :, 4].sigmoid()
         if nC > 1:
+            # torch.Size([1, 3, 20, 169]) --> torch.Size([507, 20])
             cls = output[:, :, 5:].contiguous().view(nB*nA, nC, nH*nW).transpose(1, 2).contiguous().view(-1, nC)
 
         # Create prediction boxes
         # time consuming
         pred_boxes = torch.zeros(nB*nA*nH*nW, 4, dtype=torch.float, device=device)
-        lin_x = torch.linspace(0, nW-1, nW).to(device).repeat(nH, 1).view(nH*nW)
+        lin_x = torch.linspace(0, nW-1, nW).to(device).repeat(nH, 1).view(nH*nW)  # torch.Size([13, 13])
         lin_y = torch.linspace(0, nH-1, nH).to(device).repeat(nW, 1).t().contiguous().view(nH*nW)
         anchor_w = self.anchors[self.anchors_mask, 0].view(nA, 1).to(device) 
         anchor_h = self.anchors[self.anchors_mask, 1].view(nA, 1).to(device)
@@ -155,7 +156,7 @@ class YoloLoss(nn.modules.loss._Loss):
 
         loss_conf_pos = 1.0 * self.object_scale * (conf_pos_mask * bce(conf, tconf)).sum()
         loss_conf_neg = 1.0 * self.noobject_scale * (conf_neg_mask * bce(conf, tconf)).sum() 
-        self.loss_conf = loss_conf_pos +  loss_conf_neg 
+        self.loss_conf = loss_conf_pos + loss_conf_neg
 
         if nC > 1 and cls.numel() > 0:
             self.loss_cls = self.class_scale * 1.0 * ce(cls, tcls)

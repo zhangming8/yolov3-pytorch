@@ -104,10 +104,11 @@ class VOCDataset(mydata.BramboxDataset):
         rf = mydata.transform.RandomFlip(flip)
         rc = mydata.transform.RandomCropLetterbox(self, jitter)
         hsv = mydata.transform.HSVShift(hue, sat, val)
+        rot = mydata.transform.RandomRotate(jitter_min=-20, jitter_max=20)
         it = tf.ToTensor()
 
-        img_tf = mydata.transform.Compose([rc, rf, hsv, it])
-        anno_tf = mydata.transform.Compose([rc, rf])
+        img_tf = mydata.transform.Compose([rot, rc, rf, hsv, it])
+        anno_tf = mydata.transform.Compose([rot, rc, rf])
 
         def identify(img_id):
             # return f'{root}/VOCdevkit/{img_id}.jpg'

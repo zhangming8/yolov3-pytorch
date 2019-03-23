@@ -13,6 +13,7 @@ import collections
 import logging as log
 import torch
 import numpy as np
+import math
 import cv2
 from PIL import Image, ImageOps
 
@@ -23,7 +24,7 @@ except:
     sys.path.append("../../")
     from data.transform.util import BaseTransform, BaseMultiTransform
 
-__all__ = ['Letterbox', 'RandomCrop', 'RandomCropLetterbox', 'RandomFlip', 'HSVShift', 'BramboxToTensor']
+__all__ = ['Letterbox', 'RandomCrop', 'RandomCropLetterbox', 'RandomFlip', 'HSVShift', 'BramboxToTensor', 'RandomRotate']
 
 
 class Letterbox(BaseMultiTransform):
@@ -344,60 +345,6 @@ class RandomCropLetterbox(BaseMultiTransform):
         return annos
 
 
-class RandomFlip(BaseMultiTransform):
-    """ Randomly flip image.
-
-    Args:
-        threshold (Number [0-1]): Chance of flipping the image
-
-    Note:
-        Create 1 RandomFlip object and use it for both image and annotation transforms.
-        This object will save data from the image transform and use that on the annotation transform.
-    """
-    def __init__(self, threshold):
-        self.threshold = threshold
-        self.flip = False
-        self.im_w = None
-
-    def __call__(self, data):
-        if data is None:
-            return None
-        elif isinstance(data, collections.Sequence):
-            return [self._tf_anno(anno) for anno in data]
-        elif isinstance(data, Image.Image):
-            return self._tf_pil(data)
-        elif isinstance(data, np.ndarray):
-            return self._tf_cv(data)
-        else:
-            log.error(f'RandomFlip only works with <brambox annotation lists>, <PIL images> or <OpenCV images> [{type(data)}]')
-            return data
-
-    def _tf_pil(self, img):
-        """ Randomly flip image """
-        self._get_flip()
-        self.im_w = img.size[0]
-        if self.flip:
-            img = img.transpose(Image.FLIP_LEFT_RIGHT)
-        return img
-
-    def _tf_cv(self, img):
-        """ Randomly flip image """
-        self._get_flip()
-        self.im_w = img.shape[1]
-        if self.flip:
-            img = cv2.flip(img, 1)
-        return img
-
-    def _get_flip(self):
-        self.flip = random.random() < self.threshold
-
-    def _tf_anno(self, anno):
-        """ Change coordinates of an annotation, according to the previous flip """
-        if self.flip and self.im_w is not None:
-            anno.x_top_left = self.im_w - anno.x_top_left - anno.width
-        return anno
-
-
 class HSVShift(BaseTransform):
     """ Perform random HSV shift on the RGB data.
 
@@ -475,6 +422,144 @@ class HSVShift(BaseTransform):
         img = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
         img = (img * 255).astype(np.uint8)
         return img
+
+
+class RandomFlip(BaseMultiTransform):
+    """ Randomly flip image.
+
+    Args:
+        threshold (Number [0-1]): Chance of flipping the image
+
+    Note:
+        Create 1 RandomFlip object and use it for both image and annotation transforms.
+        This object will save data from the image transform and use that on the annotation transform.
+    """
+    def __init__(self, threshold):
+        self.threshold = threshold
+        self.flip = False
+        self.im_w = None
+
+    def __call__(self, data):
+        if data is None:
+            return None
+        elif isinstance(data, collections.Sequence):
+            return [self._tf_anno(anno) for anno in data]
+        elif isinstance(data, Image.Image):
+            return self._tf_pil(data)
+        elif isinstance(data, np.ndarray):
+            return self._tf_cv(data)
+        else:
+            log.error(f'RandomFlip only works with <brambox annotation lists>, <PIL images> or <OpenCV images> [{type(data)}]')
+            return data
+
+    def _tf_pil(self, img):
+        """ Randomly flip image """
+        self._get_flip()
+        self.im_w = img.size[0]
+        if self.flip:
+            img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        return img
+
+    def _tf_cv(self, img):
+        """ Randomly flip image """
+        self._get_flip()
+        self.im_w = img.shape[1]
+        if self.flip:
+            img = cv2.flip(img, 1)
+        return img
+
+    def _get_flip(self):
+        self.flip = random.random() < self.threshold
+
+    def _tf_anno(self, anno):
+        """ Change coordinates of an annotation, according to the previous flip """
+        if self.flip and self.im_w is not None:
+            anno.x_top_left = self.im_w - anno.x_top_left - anno.width
+        return anno
+
+
+class RandomRotate(BaseMultiTransform):
+    """ Randomly rotate the image/annotations.
+    For the annotations we take the smallest possible rectangle that fits the rotated rectangle.
+
+    Args:
+        jitter (Number [0-180]): Random number between -jitter,jitter degrees is used to rotate the image
+
+    Note:
+        Create 1 RandomRotate object and use it for both image and annotation transforms.
+        This object will save data from the image transform and use that on the annotation transform.
+    """
+    def __init__(self, jitter_min, jitter_max):
+        self.jitter_min = jitter_min
+        self.jitter_max = jitter_max
+        self.angle = None
+        self.im_w = None
+        self.im_h = None
+
+    def __call__(self, data):
+        if data is None:
+            return None
+        elif isinstance(data, collections.Sequence):
+            return self._tf_anno(data)
+        elif isinstance(data, Image.Image):
+            return self._tf_pil(data)
+        elif isinstance(data, np.ndarray):
+            return self._tf_cv(data)
+        else:
+            log.error(f'RandomFlip only works with <brambox annotation lists>, <PIL images> or <OpenCV images> [{type(data)}]')
+            return data
+
+    def _get_rotate(self, im_w, im_h):
+        self.im_w = im_w
+        self.im_h = im_h
+        self.angle = random.randint(self.jitter_min, self.jitter_max)
+
+    def _tf_pil(self, img):
+        im_w, im_h = img.size
+        self._get_rotate(im_w, im_h)
+        return img.rotate(self.angle, fillcolor=(127, 127, 127))
+
+    def _tf_cv(self, img):
+        im_h, im_w = img.shape[:2]
+        self._get_rotate(im_w, im_h)
+        M = cv2.getRotationMatrix2D((im_w/2, im_h/2), self.angle, 1)
+        return cv2.warpAffine(img, M, (im_w, im_h), borderValue=127)
+
+    def _tf_anno(self, annos):
+        # print("rot ", self.angle)
+        cx, cy = self.im_w/2, self.im_h/2
+        rad = math.radians(-self.angle)
+        cos_a = math.cos(rad)
+        sin_a = math.sin(rad)
+
+        for anno in annos:
+            # Rotate anno
+            x1_c = anno.x_top_left - cx
+            y1_c = anno.y_top_left - cy
+            x2_c = x1_c + anno.width
+            y2_c = y1_c + anno.height
+
+            x1_r = (x1_c * cos_a - y1_c * sin_a) + cx
+            y1_r = (x1_c * sin_a + y1_c * cos_a) + cy
+            x2_r = (x2_c * cos_a - y1_c * sin_a) + cx
+            y2_r = (x2_c * sin_a + y1_c * cos_a) + cy
+            x3_r = (x2_c * cos_a - y2_c * sin_a) + cx
+            y3_r = (x2_c * sin_a + y2_c * cos_a) + cy
+            x4_r = (x1_c * cos_a - y2_c * sin_a) + cx
+            y4_r = (x1_c * sin_a + y2_c * cos_a) + cy
+
+            # Max rect box
+            x1_n = min(x1_r, x2_r, x3_r, x4_r)
+            y1_n = min(y1_r, y2_r, y3_r, y4_r)
+            x2_n = max(x1_r, x2_r, x3_r, x4_r)
+            y2_n = max(y1_r, y2_r, y3_r, y4_r)
+
+            anno.x_top_left = x1_n
+            anno.y_top_left = y1_n
+            anno.width = x2_n - x1_n
+            anno.height = y2_n - y1_n
+
+        return annos
 
 
 class BramboxToTensor(BaseTransform):
