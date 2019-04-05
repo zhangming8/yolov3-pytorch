@@ -10,7 +10,7 @@ The original code was hard to understand, so I reorganized the code structure an
     3. Multi GPU training
 
 # Usage method
-    Environment: python3.6, pytroch 0.4
+    Environment: ubuntu, python3.6, pytroch 0.4
 
 Prepare dataset:
 
