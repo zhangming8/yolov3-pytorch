@@ -42,3 +42,4 @@ Detect a image:
 
     python3.6 predict_cv.py
     the images in folder "test_img" will be used, and the results are saved in folder "result"
+    ![Image text](https://github.com/zhangming8/yolov3-pytorch/tree/master/test_img/000005.jpg)
