@@ -30,12 +30,12 @@ How to train:
     train yolov3-tiny:
         1. modify "data_root_dir" to your dataset folder in "cfg/tiny_yolov3.yml", such as: '/media/data/VOCdevkit/onedet_cache' 
         2. modify "model_name" to "TinyYolov3" in train_my.py, such as: model_name = "TinyYolov3"
-        2. python3.6 train_my.py  # train from scratch
+        3. python3.6 train_my.py  # train from scratch
     train yolov3:
         1. download init weight: wget https://pjreddie.com/media/files/darknet53.conv.74
         2. modify "data_root_dir" to your dataset folder in "cfg/yolov3.yml", such as: '/media/data/VOCdevkit/onedet_cache' 
-        2. modify "model_name" to "Yolov3" in train_my.py, such as: model_name = "Yolov3"
-        2. python3.6 train_my.py
+        3. modify "model_name" to "Yolov3" in train_my.py, such as: model_name = "Yolov3"
+        4. python3.6 train_my.py
      the trained model will be saved in folder "output"
         
 Detect a image:
