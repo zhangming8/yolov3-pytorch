@@ -64,8 +64,13 @@ def detect(net, img_path, use_cuda, network_size, nms_thresh):
     st = time.time()
     #data = process_cv(data, network_size)
     data = process_data(data, network_size)  # use Image.open
+    print("process time:", time.time()-st)
+    s22 = time.time()
     data = tf.ToTensor()(data)
+    s33 = time.time()
+    print("totensor time:",s33-s22)
     data = data.unsqueeze(0)
+    print("unsqueeze time:",time.time()-s33)
 
     if use_cuda:
         data = data.cuda()
@@ -93,7 +98,9 @@ def detect(net, img_path, use_cuda, network_size, nms_thresh):
     if len(res) == 0:
         return []
     # do nms
+    t11 = time.time()
     nms_keep = py_cpu_nms(np.array(res), nms_thresh)
+    print("nms time:",time.time()-t11)
     final_res = []
     for index in nms_keep:
         x1, y1, x2, y2 = res_label[index][0], res_label[index][1], res_label[index][2], res_label[index][3]
@@ -186,8 +193,10 @@ def voc_test(hyper_params):
     if use_cuda:
         net.cuda()
 
-    # img_path = "/media/lishundong/DATA2/docker/data/VOCdevkit/VOC2007/JPEGImages"
+    #img_path = "/home/ming.zhang04/data/VOCdevkit/VOC2007/JPEGImages"
     img_path = "test_img"
+    #img_path = "/media/lishundong/DATA2/docker/data/VOC_face/VOC2012/JPEGImages"
+    # img_path = "/media/lishundong/DATA2/docker/data/VOC_key/VOC2012/JPEGImages"
     img_list = glob.glob(img_path + "/*.jpg")
     for idx, img_path in enumerate(img_list):
         print("--------------------------------")

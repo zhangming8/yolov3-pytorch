@@ -38,7 +38,7 @@ val_transforms = transforms.Compose([
 train_dataset = datasets.ImageFolder(train_folder, train_transforms)
 val_dataset = datasets.ImageFolder(val_folder, val_transforms)
 
-train_dataloaders = torch.utils.data.DataLoader(train_dataset, batch_size=256, shuffle=True, num_workers=4)
+train_dataloaders = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=4)
 val_dataloaders = torch.utils.data.DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=4)
 
 train_dataset_sizes = len(train_dataset)
@@ -194,12 +194,13 @@ def main():
 
 
 def predict():
-    model = models.resnet18(pretrained=True)
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, len(class_names))
+    #model = models.resnet18(pretrained=True)
+    #num_ftrs = model.fc.in_features
+    #model.fc = nn.Linear(num_ftrs, len(class_names))
 
+    model = TinyYolov3(train_backbone=True)
     model = model.to(device)
-    model.load_state_dict(torch.load('weights/Epoch4_acc98.91.pt'))
+    model.load_state_dict(torch.load('weights/Epoch5_acc98.80.pt'))
     model.eval()
     with torch.no_grad():
         for i, (inputs, labels) in enumerate(val_dataloaders):
@@ -209,9 +210,9 @@ def predict():
             _, preds = torch.max(outputs, 1)
             print("batch %d" %i)
             for j in range(inputs.size()[0]):
-                print("{} pred label:{}, true label:{}".format(len(preds), class_names[preds[j]], class_names[labels[j]]))
+                print("img:{}/{} pred label:{}, true label:{}".format(j, len(preds), class_names[preds[j]], class_names[labels[j]]))
 
 
 if __name__ == "__main__":
-    main()
-    # predict()
+    #main()
+    predict()

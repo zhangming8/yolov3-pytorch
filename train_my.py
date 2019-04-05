@@ -227,17 +227,20 @@ class VOCTrainingEngine(engine.Engine):
             all_tot += tot
             all_coord += coord
             all_conf += conf
-            if self.classes > 1:
+            #if self.classes > 1:
+            if True:
                 cls = mean(self.train_loss[ii]['cls'])
                 all_cls += cls
 
-            if self.classes > 1:
+            #if self.classes > 1:
+            if True:
                 log.info(
                     f'{self.batch} # {ii}: Loss:{round(tot, 5)} (Coord:{round(coord, 2)} Conf:{round(conf, 2)} Cls:{round(cls, 2)})')
             else:
                 log.info(f'{self.batch} # {ii}: Loss:{round(tot, 5)} (Coord:{round(coord, 2)} Conf:{round(conf, 2)})')
 
-        if self.classes > 1:
+        #if self.classes > 1:
+        if True:
             log.info(
                 f'{self.batch} # All : Loss:{round(all_tot, 5)} (Coord:{round(all_coord, 2)} Conf:{round(all_conf, 2)} Cls:{round(all_cls, 2)})')
         else:
@@ -272,7 +275,7 @@ if __name__ == '__main__':
 
     train_flag = 1  # 1 for train, 2 for test, 3 for test speed
     model_name = "TinyYolov3"
-    # model_name = "Yolov3"
+    #model_name = "Yolov3"
     config = initEnv(train_flag=train_flag, model_name=model_name)
 
     log.info('Config\n\n%s\n' % pformat(config))

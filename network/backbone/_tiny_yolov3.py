@@ -67,7 +67,6 @@ class TinyYolov3(nn.Module):
         classify_layer_list = [
             OrderedDict([
                 ("14_linear", nn.Linear(12544, 99)),
-                # ("15_softmax", nn.Softmax(1))
         ])
         ]
         if self.train_backbone:

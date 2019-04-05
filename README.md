@@ -2,12 +2,12 @@
 
 most of codes are copied from here: https://github.com/TencentYoutuResearch/ObjectDetection-OneStageDet/tree/master/yolo
 
-The original code was obscure, so I reorganized the code structure and added new features.
+The original code was hard to understand, so I reorganized the code structure and added new features.
 
 # Additional functions
     1. use sigmoid predict(replace softmax) class prob
     2. support train 1 class dataset
-    3. Multi GPU training
+    #3. Multi GPU training
 
 # Usage method
     Environment: python3.6, pytroch 0.4

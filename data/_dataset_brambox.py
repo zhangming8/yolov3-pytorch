@@ -85,6 +85,9 @@ class BramboxDataset(Dataset):
         # img = Image.open(self.id(self.keys[index]))
         # use cv2.imread
         img = cv2.imread(self.id(self.keys[index]))
+        #print("load image: {}".format(self.id(self.keys[index])))
+        if type(img) == type(None):
+            print("image damaged +++++++++++++++++++++++++++++++++++++++++++++++++++++")
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
         anno = copy.deepcopy(self.annos[self.keys[index]])

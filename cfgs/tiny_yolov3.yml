@@ -3,10 +3,15 @@ output_version: "baseline"
 backup_name: "weights"
 log_name: "logs"
 
-labels: ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+#labels: ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+labels: ["17"]
+#labels: ["face"]
 
+#data_root_dir: "/media/lishundong/DATA2/docker/data/VOC_face/onedet_cache"
+data_root_dir: "/media/lishundong/DATA2/docker/data/VOC_key/onedet_cache"
 #data_root_dir: "/media/lishundong/DATA2/docker/data/VOCdevkit/onedet_cache"
-data_root_dir: "/Users/ming/Desktop/tmp/VOCdevkit/onedet_cache"
+#data_root_dir: "/Users/ming/Desktop/tmp/VOCdevkit/onedet_cache"
+#data_root_dir: "/home/ming.zhang04/data/VOCdevkit/onedet_cache"
 
 train:
     dataset: "train"
@@ -23,6 +28,7 @@ train:
     warmup_lr: 0.0001
     lr_steps: [400,700,900,1000, 40000,60000] 
     lr_rates: [0.0005,0.001,0.002,0.02, 0.002,0.0002] 
+    #lr_rates: [0.00005,0.0001,0.0002,0.002, 0.0002, 0.00002] 
     max_batches: 180200
     resize_interval: 10
 
@@ -31,23 +37,25 @@ train:
     backup_rates: [10000]
 
     input_shape: [608, 608]
-    batch_size: 2
-    mini_batch_size: 2
+    batch_size: 32
+    mini_batch_size: 32
+
     weights: ~
+    #weights: "outputs/TinyYolov3/baseline/weights/backup.pt"
 
 test:
     dataset: "test"
     stdout: True
     gpus: "0"
-#    gpus: ~
+    #gpus: ~
     nworkers: 4
     pin_mem: True
 
     input_shape: [416, 416]
     batch_size: 1
-#    weights: "outputs/TinyYolov3/baseline/weights/weights_80000.pt"
+#    weights: "outputs/TinyYolov3/baseline/weights/weights_60000.pt"
     weights: "outputs/TinyYolov3/baseline/weights/backup.pt"
-    conf_thresh: 0.2
+    conf_thresh: 0.3
     nms_thresh: 0.45
 
     results: "results"

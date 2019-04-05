@@ -13,32 +13,33 @@ sys.path.insert(0, '.')
 import brambox.boxes as bbb
 
 DEBUG = True        # Enable some debug prints with extra information
-#ROOT = "/Users/ming/Desktop/tmp/VOCdevkit"
-ROOT = "/media/lishundong/DATA2/docker/data/VOC_key"
-#ROOT = "/media/lishundong/DATA2/docker/data/VOC_face"
+#ROOT = '/data2/yichaoxiong/data/VOCdevkit'       # Root folder where the VOCdevkit is located
+#ROOT = '/media/lishundong/DATA2/docker/data/VOCdevkit'       # Root folder where the VOCdevkit is located
+ROOT = "/home/ming.zhang04/data/VOCdevkit"
 
+if not os.path.exists(os.path.join(ROOT, "onedet_cache")):
+    os.mkdir(os.path.join(ROOT, "onedet_cache"))
 
 TRAINSET = [
     ('2012', 'train'),
-    # ('2012', 'val'),
+    ('2012', 'val'),
+    ('2007', 'train'),
+    ('2007', 'val'),
     ]
 
 TESTSET = [
-    ('2012', 'test'),
+    ('2007', 'test'),
     ]
 
 def identify(xml_file):
     root_dir = ROOT
-    #root = ET.parse(xml_file).getroot()
-    #folder = root.find('folder').text
-    #filename = root.find('filename').text 
-    #return f'{root_dir}/{folder}/JPEGImages/{filename}'
-    return f'{root_dir}/VOC2012/JPEGImages/{os.path.basename(xml_file)[:-4]+".jpg"}'
+    root = ET.parse(xml_file).getroot()
+    folder = root.find('folder').text
+    filename = root.find('filename').text 
+    return f'{root_dir}/{folder}/JPEGImages/{filename}'
 
 
 if __name__ == '__main__':
-    if not os.path.exists(os.path.join(ROOT, "onedet_cache")):
-        os.mkdir(os.path.join(ROOT, "onedet_cache"))
     print('Getting training annotation filenames')
     train = []
     for (year, img_set) in TRAINSET:

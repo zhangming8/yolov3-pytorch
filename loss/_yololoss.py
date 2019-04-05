@@ -109,7 +109,8 @@ class YoloLoss(nn.modules.loss._Loss):
         coord[:, :, :2] = output[:, :, :2].sigmoid()    # tx,ty
         coord[:, :, 2:4] = output[:, :, 2:4]            # tw,th
         conf = output[:, :, 4].sigmoid()
-        if nC > 1:
+        #if nC > 1:
+        if True:
             # torch.Size([1, 3, 20, 169]) --> torch.Size([507, 20])
             cls = output[:, :, 5:].contiguous().view(nB*nA, nC, nH*nW).transpose(1, 2).contiguous().view(-1, nC)
 
@@ -132,7 +133,8 @@ class YoloLoss(nn.modules.loss._Loss):
         coord_mask = coord_mask.expand_as(tcoord)[:,:,:2] # 0 = 1 = 2 = 3, only need first two element
         coord_center, tcoord_center = coord[:,:,:2], tcoord[:,:,:2]
         coord_wh, tcoord_wh = coord[:,:,2:], tcoord[:,:,2:]
-        if nC > 1:
+        #if nC > 1:
+        if True:
             tcls = tcls[cls_mask].view(-1).long()
 
             cls_mask = cls_mask.view(-1, 1).repeat(1, nC)
@@ -150,17 +152,19 @@ class YoloLoss(nn.modules.loss._Loss):
         ce = self.ce
 
         # Compute losses
-        loss_coord_center = 2.0 * 1.0 * self.coord_scale * (coord_mask*bce(coord_center, tcoord_center)).sum()
-        loss_coord_wh = 2.0 * 1.5 * self.coord_scale * (coord_mask*smooth_l1(coord_wh, tcoord_wh)).sum()
-        self.loss_coord = loss_coord_center + loss_coord_wh
+        loss_coord_center = 2.0 * 1.0 * self.coord_scale * (coord_mask*bce(coord_center, tcoord_center)).sum()  # box x,y loss: bce
+        loss_coord_wh = 2.0 * 1.5 * self.coord_scale * (coord_mask*smooth_l1(coord_wh, tcoord_wh)).sum()  # box w,h loss: smooth_l1
+        self.loss_coord = loss_coord_center + loss_coord_wh  # box loss
 
-        loss_conf_pos = 1.0 * self.object_scale * (conf_pos_mask * bce(conf, tconf)).sum()
-        loss_conf_neg = 1.0 * self.noobject_scale * (conf_neg_mask * bce(conf, tconf)).sum() 
+        loss_conf_pos = 1.0 * self.object_scale * (conf_pos_mask * bce(conf, tconf)).sum()  # obj bce loss
+        loss_conf_neg = 1.0 * self.noobject_scale * (conf_neg_mask * bce(conf, tconf)).sum()  # no obj bce loss
         self.loss_conf = loss_conf_pos + loss_conf_neg
 
-        if nC > 1 and cls.numel() > 0:
-            self.loss_cls = self.class_scale * 1.0 * ce(cls, tcls)
-            cls_softmax = F.softmax(cls, 1)
+        #if nC > 1 and cls.numel() > 0:
+        if cls.numel() > 0:
+            self.loss_cls = self.class_scale * 1.0 * ce(cls, tcls)  # CrossEntropy loss
+            #cls_softmax = F.softmax(cls, 1)
+            cls_softmax = F.sigmoid(cls)
             t_ind = torch.unsqueeze(tcls, 1).expand_as(cls_softmax)      
             class_prob = torch.gather(cls_softmax, 1, t_ind)[:, 0]
         else:

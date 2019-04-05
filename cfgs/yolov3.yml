@@ -5,12 +5,12 @@ log_name: "logs"
 
 labels: ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 
-data_root_dir: "/media/lishundong/DATA2/docker/data/VOCdevkit/onedet_cache"
+data_root_dir: "/home/ming.zhang04/data/VOCdevkit/onedet_cache"
 
 train:
     dataset: "train"
     stdout: True
-    gpus: "0"
+    gpus: "5"
     nworkers: 4
     pin_mem: True
 
@@ -31,8 +31,8 @@ train:
 
     input_shape: [608, 608]
     batch_size: 8
-    mini_batch_size: 4
-    weights: "/home/lishundong/ObjectDetection-OneStageDet/yolo/weights/darknet53.conv.74"
+    mini_batch_size: 8
+    weights: "darknet53.conv.74"
 
 test:
     dataset: "test"
@@ -43,7 +43,8 @@ test:
 
     input_shape: [544, 544]
     batch_size: 1
-    weights: "outputs/Yolov3/baseline/weights/weights_50000.pt"
+    #weights: "outputs/Yolov3/baseline/weights/weights_50000.pt"
+    weights: "outputs/Yolov3/baseline/weights/backup.pt"
 
     conf_thresh: 0.4
     nms_thresh: 0.45
