@@ -7,7 +7,7 @@ The original code was hard to understand, so I reorganized the code structure an
 # Additional functions
     1. use sigmoid predict(replace softmax) class prob
     2. support train 1 class dataset
-    #3. Multi GPU training
+    3. Multi GPU training
 
 # Usage method
     Environment: python3.6, pytroch 0.4

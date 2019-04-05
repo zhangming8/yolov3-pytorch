@@ -3,20 +3,23 @@ output_version: "baseline"
 backup_name: "weights"
 log_name: "logs"
 
-#labels: ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
-labels: ["17"]
+labels: ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+#labels: ["17"]
 #labels: ["face"]
 
 #data_root_dir: "/media/lishundong/DATA2/docker/data/VOC_face/onedet_cache"
-data_root_dir: "/media/lishundong/DATA2/docker/data/VOC_key/onedet_cache"
+#data_root_dir: "/media/lishundong/DATA2/docker/data/VOC_key/onedet_cache"
 #data_root_dir: "/media/lishundong/DATA2/docker/data/VOCdevkit/onedet_cache"
 #data_root_dir: "/Users/ming/Desktop/tmp/VOCdevkit/onedet_cache"
-#data_root_dir: "/home/ming.zhang04/data/VOCdevkit/onedet_cache"
+data_root_dir: "/home/ming.zhang04/data/VOCdevkit/onedet_cache"
+
+anchors: [(10,14),  (23,27),  (37,58),  (81,82),  (135,169),  (344,319)]
 
 train:
     dataset: "train"
     stdout: True
-    gpus: "0"
+#    gpus: "0"
+    gpus: "0,1,2"
     nworkers: 4
     pin_mem: True
 

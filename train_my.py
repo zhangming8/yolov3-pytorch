@@ -23,6 +23,7 @@ class HyperParams(object):
         self.classes = len(self.labels)
         self.data_root = config['data_root_dir']
         self.model_name = config['model_name']
+        self.anchors = config["anchor"]
 
         # cuda check
         if self.cuda:
@@ -35,6 +36,7 @@ class HyperParams(object):
         if train_flag == 1:
             cur_cfg = config
 
+            self.gpus = cur_cfg["gpus"]
             self.nworkers = cur_cfg['nworkers']
             self.pin_mem = cur_cfg['pin_mem']
             dataset = cur_cfg['dataset']
@@ -130,6 +132,7 @@ class VOCTrainingEngine(engine.Engine):
         self.classes = hyper_params.classes
 
         self.cuda = hyper_params.cuda
+        self.gpus = hyper_params.gpus
         self.backup_dir = hyper_params.backup_dir
 
         log.debug('Creating network')
@@ -137,7 +140,7 @@ class VOCTrainingEngine(engine.Engine):
         # net = models.__dict__[model_name](hyper_params.classes, hyper_params.weights, train_flag=1,
         #                                   clear=hyper_params.clear)
         if model_name == "TinyYolov3":
-            net = models.TinyYolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
+            net = models.TinyYolov3(hyper_params.classes, hyper_params.weights,anchors=hyper_params.anchors, train_flag=1, clear=hyper_params.clear)
         elif model_name == "Yolov3":
             net = models.Yolov3(hyper_params.classes, hyper_params.weights, train_flag=1, clear=hyper_params.clear)
         else:
@@ -146,6 +149,7 @@ class VOCTrainingEngine(engine.Engine):
         log.info('Net structure\n\n%s\n' % net)
         if self.cuda:
             net.cuda()
+            net = torch.nn.DataParallel(net, device_ids=[i for i in range(len(self.gpus.split(",")))])  # multi-GPU
 
         log.debug('Creating optimizer')
         learning_rate = hyper_params.learning_rate
